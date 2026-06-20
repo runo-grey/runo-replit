@@ -1,6 +1,6 @@
-import { db, usersTable, inventoryTable, guildSettingsTable } from "@workspace/db";
+import { db, usersTable, inventoryTable, guildSettingsTable } from "../db.js";
 import { eq, desc } from "drizzle-orm";
-import type { User, Inventory, GuildSettings } from "@workspace/db";
+import type { User, Inventory, GuildSettings } from "../schema/index.js";
 
 export async function getOrCreateUser(discordId: string, username: string): Promise<User> {
   const existing = await db.select().from(usersTable).where(eq(usersTable.discordId, discordId)).limit(1);
@@ -52,22 +52,17 @@ export async function getInventory(discordId: string): Promise<Inventory[]> {
 }
 
 export async function addInventoryItem(discordId: string, itemId: string): Promise<void> {
-  const existing = await db.select().from(inventoryTable)
-    .where(eq(inventoryTable.discordId, discordId))
-    .limit(100);
+  const existing = await db.select().from(inventoryTable).where(eq(inventoryTable.discordId, discordId)).limit(100);
   const found = existing.find(i => i.itemId === itemId);
   if (found) {
-    await db.update(inventoryTable).set({ quantity: found.quantity + 1 })
-      .where(eq(inventoryTable.id, found.id));
+    await db.update(inventoryTable).set({ quantity: found.quantity + 1 }).where(eq(inventoryTable.id, found.id));
   } else {
     await db.insert(inventoryTable).values({ discordId, itemId, quantity: 1 });
   }
 }
 
 export async function hasItem(discordId: string, itemId: string): Promise<boolean> {
-  const result = await db.select().from(inventoryTable)
-    .where(eq(inventoryTable.discordId, discordId))
-    .limit(100);
+  const result = await db.select().from(inventoryTable).where(eq(inventoryTable.discordId, discordId)).limit(100);
   return result.some(i => i.itemId === itemId && i.quantity > 0);
 }
 

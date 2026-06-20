@@ -1,6 +1,6 @@
 import { type Message, type ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { getOrCreateUser } from "../db.js";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable } from "../../db.js";
 import { eq } from "drizzle-orm";
 import { Colors, errorEmbed, formatCoins } from "../embeds.js";
 
