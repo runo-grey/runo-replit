@@ -8,11 +8,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/healthz", (_req, res) => {
-  res.json({ status: "ok" });
+  res.json({ status: "ok", uptime: process.uptime() });
 });
 
 app.get("/", (_req, res) => {
-  res.json({ status: "Runo bot is running! 🪙" });
+  res.json({ status: "🃏 Runo Bot is running!" });
 });
 
 export default app;

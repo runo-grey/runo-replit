@@ -1,5 +1,5 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
-import { logger } from "../lib/logger.js";
+
 
 const commands = [
   new SlashCommandBuilder()
@@ -128,6 +128,37 @@ const commands = [
     .setDescription("Show all available commands"),
 
   new SlashCommandBuilder()
+    .setName("uno")
+    .setDescription("Create or join a UNO game in this channel"),
+
+  new SlashCommandBuilder()
+    .setName("unostart")
+    .setDescription("Start the UNO game (host only)"),
+
+  new SlashCommandBuilder()
+    .setName("unoplay")
+    .setDescription("Play a card in UNO")
+    .addStringOption(opt =>
+      opt.setName("card").setDescription('Card to play e.g. "red 5" "wild blue" "3" (position)').setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("unodraw")
+    .setDescription("Draw a card in UNO (or take stacked draw penalty)"),
+
+  new SlashCommandBuilder()
+    .setName("unohand")
+    .setDescription("See your UNO hand privately"),
+
+  new SlashCommandBuilder()
+    .setName("unoleave")
+    .setDescription("Leave the current UNO game"),
+
+  new SlashCommandBuilder()
+    .setName("unohelp")
+    .setDescription("Show how to play Runo UNO"),
+
+  new SlashCommandBuilder()
     .setName("gamesetup")
     .setDescription("Admin: configure bot settings")
     .addSubcommand(sub =>
@@ -144,17 +175,17 @@ export async function registerSlashCommands(): Promise<void> {
   const clientId = process.env["DISCORD_CLIENT_ID"];
 
   if (!token || !clientId) {
-    logger.error("DISCORD_TOKEN or DISCORD_CLIENT_ID not set — skipping slash command registration");
+    console.error("DISCORD_TOKEN or DISCORD_CLIENT_ID not set — skipping slash command registration");
     return;
   }
 
   const rest = new REST({ version: "10" }).setToken(token);
 
   try {
-    logger.info("Registering slash commands...");
+    console.log("Registering slash commands...");
     await rest.put(Routes.applicationCommands(clientId), { body: commands });
-    logger.info(`Registered ${commands.length} slash commands`);
+    console.log(`Registered ${commands.length} slash commands`);
   } catch (err) {
-    logger.error({ err }, "Failed to register slash commands");
+    console.error({ err }, "Failed to register slash commands");
   }
 }

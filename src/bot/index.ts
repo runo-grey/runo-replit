@@ -7,7 +7,7 @@ import {
   Events,
   ChannelType,
 } from "discord.js";
-import { logger } from "../lib/logger.js";
+
 import { getGuildSettings } from "./db.js";
 import { registerSlashCommands } from "./register-commands.js";
 import { handleBalance } from "./commands/balance.js";
@@ -28,6 +28,15 @@ import { handleDeposit, handleWithdraw } from "./commands/bank.js";
 import { handleRoulette } from "./commands/roulette.js";
 import { handleDice } from "./commands/dice.js";
 import { handleScratch } from "./commands/scratch.js";
+import {
+  handleUno,
+  handleUnoStart,
+  handleUnoPlay,
+  handleUnoDraw,
+  handleUnoHand,
+  handleUnoLeave,
+  handleUnoHelp,
+} from "./commands/uno.js";
 import { errorEmbed } from "./embeds.js";
 
 const PREFIX = "!";
@@ -42,7 +51,7 @@ async function isAllowedChannel(guildId: string | null, channelId: string): Prom
 export async function startBot(): Promise<void> {
   const token = process.env["DISCORD_TOKEN"];
   if (!token) {
-    logger.error("DISCORD_TOKEN not set — bot will not start");
+    console.error("DISCORD_TOKEN not set — bot will not start");
     return;
   }
 
@@ -59,7 +68,7 @@ export async function startBot(): Promise<void> {
   });
 
   client.once(Events.ClientReady, (c) => {
-    logger.info(`Discord bot ready: ${c.user.tag}`);
+    console.log(`Discord bot ready: ${c.user.tag}`);
   });
 
   // --- PREFIX COMMANDS ---
@@ -154,6 +163,27 @@ export async function startBot(): Promise<void> {
         case "sc":
           await handleScratch(message, args[0] ?? "");
           break;
+        case "uno":
+          await handleUno(message);
+          break;
+        case "unostart":
+          await handleUnoStart(message);
+          break;
+        case "unoplay":
+          await handleUnoPlay(message, args.join(" "));
+          break;
+        case "unodraw":
+          await handleUnoDraw(message);
+          break;
+        case "unohand":
+          await handleUnoHand(message);
+          break;
+        case "unoleave":
+          await handleUnoLeave(message);
+          break;
+        case "unohelp":
+          await handleUnoHelp(message);
+          break;
         case "deposit":
         case "dep":
           await handleDeposit(message, args[0] ?? "");
@@ -169,7 +199,7 @@ export async function startBot(): Promise<void> {
           break;
       }
     } catch (err) {
-      logger.error({ err, command }, "Error handling prefix command");
+      console.error({ err, command }, "Error handling prefix command");
       await message.reply({ embeds: [errorEmbed("Something went wrong. Please try again.")] }).catch(() => null);
     }
   });
@@ -251,6 +281,27 @@ export async function startBot(): Promise<void> {
         case "help":
           await handleHelp(i);
           break;
+        case "uno":
+          await handleUno(i);
+          break;
+        case "unostart":
+          await handleUnoStart(i);
+          break;
+        case "unoplay":
+          await handleUnoPlay(i, i.options.getString("card") ?? "");
+          break;
+        case "unodraw":
+          await handleUnoDraw(i);
+          break;
+        case "unohand":
+          await handleUnoHand(i);
+          break;
+        case "unoleave":
+          await handleUnoLeave(i);
+          break;
+        case "unohelp":
+          await handleUnoHelp(i);
+          break;
         case "gamesetup":
           await handleGameSetup(i);
           break;
@@ -258,7 +309,7 @@ export async function startBot(): Promise<void> {
           break;
       }
     } catch (err) {
-      logger.error({ err, command: i.commandName }, "Error handling slash command");
+      console.error({ err, command: i.commandName }, "Error handling slash command");
       const errEmbed = errorEmbed("Something went wrong. Please try again.");
       if (i.replied || i.deferred) {
         await i.editReply({ embeds: [errEmbed] }).catch(() => null);

@@ -1,7 +1,7 @@
 {
   "name": "runo-bot",
   "version": "1.0.0",
-  "description": "Runo Discord Economy Bot",
+  "description": "Runo Discord Economy + UNO Bot",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",

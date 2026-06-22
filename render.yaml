@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     buildCommand: npm install
-    startCommand: node --loader tsx/esm src/index.ts
+    startCommand: node --import tsx/esm src/index.ts
     healthCheckPath: /healthz
     envVars:
       - key: DISCORD_TOKEN
