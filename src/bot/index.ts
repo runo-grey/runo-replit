@@ -81,8 +81,11 @@ export async function startBot(): Promise<void> {
     const command = args.shift()?.toLowerCase();
     if (!command) return;
 
-    // Check channel restriction (skip for DMs)
-    if (message.channel.type === ChannelType.GuildText) {
+    // Admin commands bypass channel restriction
+    const adminCommands = new Set(["giverunos", "gamesetup"]);
+
+    // Check channel restriction (skip for DMs and admin commands)
+    if (message.channel.type === ChannelType.GuildText && !adminCommands.has(command)) {
       const allowed = await isAllowedChannel(message.guildId, message.channelId);
       if (!allowed) {
         await message.reply({ embeds: [errorEmbed("Bot commands are restricted to a specific channel in this server.")] });
@@ -220,8 +223,9 @@ export async function startBot(): Promise<void> {
 
     const i = interaction as ChatInputCommandInteraction;
 
-    // gamesetup is admin-only and always allowed
-    if (i.commandName !== "gamesetup") {
+    // Admin commands bypass channel restriction
+    const adminSlashCommands = new Set(["gamesetup", "giverunos"]);
+    if (!adminSlashCommands.has(i.commandName)) {
       const allowed = await isAllowedChannel(i.guildId, i.channelId);
       if (!allowed) {
         await i.reply({ embeds: [errorEmbed("Bot commands are restricted to a specific channel in this server.")], ephemeral: true });
