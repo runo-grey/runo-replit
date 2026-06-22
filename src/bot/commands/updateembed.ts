@@ -14,6 +14,20 @@ function hasAdminRole(source: Message | ChatInputCommandInteraction): boolean {
   return member.roles.cache.has(ADMIN_ROLE_ID);
 }
 
+async function postUpdate(
+  source: Message | ChatInputCommandInteraction,
+  embed: EmbedBuilder,
+): Promise<void> {
+  if ("replied" in source) {
+    const i = source as ChatInputCommandInteraction;
+    await i.reply({ content: "✅ Update posted!", ephemeral: true });
+    await i.channel?.send({ embeds: [embed] });
+  } else {
+    await (source as Message).delete().catch(() => null);
+    await (source as Message).channel.send({ embeds: [embed] });
+  }
+}
+
 // ─── /update-embed-added ─────────────────────────────────────────────────────
 
 export async function handleUpdateEmbedAdded(
@@ -23,7 +37,7 @@ export async function handleUpdateEmbedAdded(
   if (!hasAdminRole(source)) {
     await source.reply({
       embeds: [errorEmbed("You don't have permission to use this command.")],
-      ...(("replied" in source) ? { ephemeral: true } : {}),
+      ...("replied" in source ? { ephemeral: true } : {}),
     });
     return;
   }
@@ -31,7 +45,7 @@ export async function handleUpdateEmbedAdded(
   if (!content.trim()) {
     await source.reply({
       embeds: [errorEmbed("Please provide content for the update.")],
-      ...(("replied" in source) ? { ephemeral: true } : {}),
+      ...("replied" in source ? { ephemeral: true } : {}),
     });
     return;
   }
@@ -39,37 +53,13 @@ export async function handleUpdateEmbedAdded(
   const issuerName = "author" in source ? source.author.username : source.user.username;
 
   const embed = new EmbedBuilder()
-    .setColor(0x57F287) // Discord green
-    .setTitle("✅  ─  ADDED  ─  ✅")
-    .setDescription(
-      [
-        "```",
-        "╔══════════════════════════╗",
-        "║      RUNO  UPDATES       ║",
-        "╚══════════════════════════╝",
-        "```",
-        "",
-        `> ${content.split("\n").join("\n> ")}`,
-        "",
-        "─────────────────────────",
-        "🪙 **Runo Bot** • Stay Updated!",
-      ].join("\n"),
-    )
-    .setThumbnail("https://cdn.discordapp.com/emojis/1382394861518725201.webp")
-    .setFooter({
-      text: `Posted by ${issuerName} • Runo Updates`,
-    })
+    .setColor(0x57F287)
+    .setTitle("✅ Added")
+    .setDescription(content)
+    .setFooter({ text: `Posted by ${issuerName} • Runo Updates` })
     .setTimestamp();
 
-  // Delete the slash command response and send a clean message instead
-  if ("replied" in source) {
-    const i = source as ChatInputCommandInteraction;
-    await i.reply({ content: "✅ Update posted!", ephemeral: true });
-    await i.channel?.send({ embeds: [embed] });
-  } else {
-    await (source as Message).delete().catch(() => null);
-    await (source as Message).channel.send({ embeds: [embed] });
-  }
+  await postUpdate(source, embed);
 }
 
 // ─── /update-embed-removed ───────────────────────────────────────────────────
@@ -81,7 +71,7 @@ export async function handleUpdateEmbedRemoved(
   if (!hasAdminRole(source)) {
     await source.reply({
       embeds: [errorEmbed("You don't have permission to use this command.")],
-      ...(("replied" in source) ? { ephemeral: true } : {}),
+      ...("replied" in source ? { ephemeral: true } : {}),
     });
     return;
   }
@@ -89,7 +79,7 @@ export async function handleUpdateEmbedRemoved(
   if (!content.trim()) {
     await source.reply({
       embeds: [errorEmbed("Please provide content for the update.")],
-      ...(("replied" in source) ? { ephemeral: true } : {}),
+      ...("replied" in source ? { ephemeral: true } : {}),
     });
     return;
   }
@@ -97,35 +87,45 @@ export async function handleUpdateEmbedRemoved(
   const issuerName = "author" in source ? source.author.username : source.user.username;
 
   const embed = new EmbedBuilder()
-    .setColor(0xED4245) // Discord red
-    .setTitle("❌  ─  REMOVED  ─  ❌")
-    .setDescription(
-      [
-        "```",
-        "╔══════════════════════════╗",
-        "║      RUNO  UPDATES       ║",
-        "╚══════════════════════════╝",
-        "```",
-        "",
-        `> ${content.split("\n").join("\n> ")}`,
-        "",
-        "─────────────────────────",
-        "🪙 **Runo Bot** • Stay Updated!",
-      ].join("\n"),
-    )
-    .setThumbnail("https://cdn.discordapp.com/emojis/1382394861518725201.webp")
-    .setFooter({
-      text: `Posted by ${issuerName} • Runo Updates`,
-    })
+    .setColor(0xED4245)
+    .setTitle("❌ Removed")
+    .setDescription(content)
+    .setFooter({ text: `Posted by ${issuerName} • Runo Updates` })
     .setTimestamp();
 
-  if ("replied" in source) {
-    const i = source as ChatInputCommandInteraction;
-    await i.reply({ content: "✅ Update posted!", ephemeral: true });
-    await i.channel?.send({ embeds: [embed] });
-  } else {
-    await (source as Message).delete().catch(() => null);
-    await (source as Message).channel.send({ embeds: [embed] });
-  }
+  await postUpdate(source, embed);
 }
 
+// ─── /update-embed-updated ───────────────────────────────────────────────────
+
+export async function handleUpdateEmbedUpdated(
+  source: Message | ChatInputCommandInteraction,
+  content: string,
+): Promise<void> {
+  if (!hasAdminRole(source)) {
+    await source.reply({
+      embeds: [errorEmbed("You don't have permission to use this command.")],
+      ...("replied" in source ? { ephemeral: true } : {}),
+    });
+    return;
+  }
+
+  if (!content.trim()) {
+    await source.reply({
+      embeds: [errorEmbed("Please provide content for the update.")],
+      ...("replied" in source ? { ephemeral: true } : {}),
+    });
+    return;
+  }
+
+  const issuerName = "author" in source ? source.author.username : source.user.username;
+
+  const embed = new EmbedBuilder()
+    .setColor(0xFEE75C)
+    .setTitle("🔄 Updated")
+    .setDescription(content)
+    .setFooter({ text: `Posted by ${issuerName} • Runo Updates` })
+    .setTimestamp();
+
+  await postUpdate(source, embed);
+}
