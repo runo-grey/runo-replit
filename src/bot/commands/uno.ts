@@ -3,7 +3,8 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder,
 } from "discord.js";
-import { Colors, errorEmbed } from "../embeds.js";
+import { Colors, errorEmbed, formatCoins } from "../embeds.js";
+import { updateBalance } from "../db.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -476,10 +477,16 @@ export async function handleUnoPlay(src: Source, input: string): Promise<void> {
   if (player.hand.length === 0) {
     game.phase = "ended";
     games.delete(cid);
+    const PRIZE = 2000;
+    await updateBalance(uid, PRIZE);
     const embed = new EmbedBuilder()
       .setColor(Colors.gold)
       .setTitle("🏆 UNO — We Have a Winner!")
-      .setDescription(`🎉 **${uname}** played their last card and wins!\n\n${cardLabel(card)}`)
+      .setDescription(
+        `🎉 **${uname}** played their last card and wins!\n\n` +
+        `Last card: ${cardLabel(card)}\n\n` +
+        `**${uname}** has been awarded ${formatCoins(PRIZE)}! 🪙`,
+      )
       .setFooter({ text: "Start a new game with !uno" })
       .setTimestamp();
     await reply(src, { embeds: [embed] });

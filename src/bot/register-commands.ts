@@ -159,6 +159,16 @@ const commands = [
     .setDescription("Show how to play Runo UNO"),
 
   new SlashCommandBuilder()
+    .setName("giverunos")
+    .setDescription("Admin: give Runos to a user (restricted role only)")
+    .addUserOption(opt =>
+      opt.setName("user").setDescription("Who to give Runos to").setRequired(true),
+    )
+    .addIntegerOption(opt =>
+      opt.setName("amount").setDescription("Amount of Runos to give").setRequired(true).setMinValue(1).setMaxValue(1000000),
+    ),
+
+  new SlashCommandBuilder()
     .setName("gamesetup")
     .setDescription("Admin: configure bot settings")
     .addSubcommand(sub =>

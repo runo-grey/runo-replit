@@ -37,6 +37,7 @@ import {
   handleUnoLeave,
   handleUnoHelp,
 } from "./commands/uno.js";
+import { handleGiveRunos } from "./commands/giverunos.js";
 import { errorEmbed } from "./embeds.js";
 
 const PREFIX = "!";
@@ -184,6 +185,15 @@ export async function startBot(): Promise<void> {
         case "unohelp":
           await handleUnoHelp(message);
           break;
+        case "giverunos": {
+          const target = message.mentions.users.first();
+          if (!target) {
+            await message.reply({ embeds: [errorEmbed("Mention a user. e.g. `!giverunos @user 500`")] });
+            break;
+          }
+          await handleGiveRunos(message, target.id, target.username, args[1] ?? "");
+          break;
+        }
         case "deposit":
         case "dep":
           await handleDeposit(message, args[0] ?? "");
@@ -302,6 +312,11 @@ export async function startBot(): Promise<void> {
         case "unohelp":
           await handleUnoHelp(i);
           break;
+        case "giverunos": {
+          const user = i.options.getUser("user", true);
+          await handleGiveRunos(i, user.id, user.username, String(i.options.getInteger("amount", true)));
+          break;
+        }
         case "gamesetup":
           await handleGameSetup(i);
           break;

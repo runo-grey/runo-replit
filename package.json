@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Runo Discord Economy + UNO Bot",
   "type": "module",
-  "scripts": {
-    "dev": "tsx src/index.ts",
-    "start": "tsx src/index.ts"
-  },
+  "scripts": { "dev": "tsx src/index.ts", "start": "tsx src/index.ts" },
   "dependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
