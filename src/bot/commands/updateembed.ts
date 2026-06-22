@@ -128,3 +128,4 @@ export async function handleUpdateEmbedRemoved(
     await (source as Message).channel.send({ embeds: [embed] });
   }
 }
+
