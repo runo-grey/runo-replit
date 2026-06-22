@@ -38,6 +38,7 @@ import {
   handleUnoHelp,
 } from "./commands/uno.js";
 import { handleGiveRunos } from "./commands/giverunos.js";
+import { handleUpdateEmbedAdded, handleUpdateEmbedRemoved } from "./commands/updateembed.js";
 import { errorEmbed } from "./embeds.js";
 
 const PREFIX = "!";
@@ -82,7 +83,7 @@ export async function startBot(): Promise<void> {
     if (!command) return;
 
     // Admin commands bypass channel restriction
-    const adminCommands = new Set(["giverunos", "gamesetup"]);
+    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed"]);
 
     // Check channel restriction (skip for DMs and admin commands)
     if (message.channel.type === ChannelType.GuildText && !adminCommands.has(command)) {
@@ -197,6 +198,12 @@ export async function startBot(): Promise<void> {
           await handleGiveRunos(message, target.id, target.username, args[1] ?? "");
           break;
         }
+        case "update-embed-added":
+          await handleUpdateEmbedAdded(message, args.join(" "));
+          break;
+        case "update-embed-removed":
+          await handleUpdateEmbedRemoved(message, args.join(" "));
+          break;
         case "deposit":
         case "dep":
           await handleDeposit(message, args[0] ?? "");
@@ -224,7 +231,7 @@ export async function startBot(): Promise<void> {
     const i = interaction as ChatInputCommandInteraction;
 
     // Admin commands bypass channel restriction
-    const adminSlashCommands = new Set(["gamesetup", "giverunos"]);
+    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed"]);
     if (!adminSlashCommands.has(i.commandName)) {
       const allowed = await isAllowedChannel(i.guildId, i.channelId);
       if (!allowed) {
@@ -321,6 +328,12 @@ export async function startBot(): Promise<void> {
           await handleGiveRunos(i, user.id, user.username, String(i.options.getInteger("amount", true)));
           break;
         }
+        case "update-embed-added":
+          await handleUpdateEmbedAdded(i, i.options.getString("content", true));
+          break;
+        case "update-embed-removed":
+          await handleUpdateEmbedRemoved(i, i.options.getString("content", true));
+          break;
         case "gamesetup":
           await handleGameSetup(i);
           break;

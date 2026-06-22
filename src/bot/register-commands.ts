@@ -169,6 +169,20 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
+    .setName("update-embed-added")
+    .setDescription("Admin: post a ✅ Added update embed (restricted role only)")
+    .addStringOption(opt =>
+      opt.setName("content").setDescription("What was added — supports multiple lines").setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("update-embed-removed")
+    .setDescription("Admin: post a ❌ Removed update embed (restricted role only)")
+    .addStringOption(opt =>
+      opt.setName("content").setDescription("What was removed — supports multiple lines").setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
     .setName("gamesetup")
     .setDescription("Admin: configure bot settings")
     .addSubcommand(sub =>
