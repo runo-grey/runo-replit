@@ -43,6 +43,18 @@ import {
   handleUpdateEmbedRemoved,
   handleUpdateEmbedUpdated,
 } from "./commands/updateembed.js";
+import {
+  handlePlay,
+  handleSkip,
+  handleStop,
+  handlePause,
+  handleResume,
+  handleQueue,
+  handleNowPlaying,
+  handleVolume,
+  handleLeave,
+  handleMusicGuide,
+} from "./commands/music.js";
 import { errorEmbed } from "./embeds.js";
 
 const PREFIX = "!";
@@ -69,6 +81,7 @@ export async function startBot(): Promise<void> {
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.MessageContent,
       GatewayIntentBits.DirectMessages,
+      GatewayIntentBits.GuildVoiceStates,
     ],
     partials: [Partials.Channel],
   });
@@ -86,10 +99,11 @@ export async function startBot(): Promise<void> {
     const command = args.shift()?.toLowerCase();
     if (!command) return;
 
-    // Admin commands bypass channel restriction
-    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "update-embed-updated"]);
+    const adminCommands = new Set([
+      "giverunos", "gamesetup",
+      "update-embed-added", "update-embed-removed", "update-embed-updated",
+    ]);
 
-    // Check channel restriction (skip for DMs and admin commands)
     if (message.channel.type === ChannelType.GuildText && !adminCommands.has(command)) {
       const allowed = await isAllowedChannel(message.guildId, message.channelId);
       if (!allowed) {
@@ -103,11 +117,7 @@ export async function startBot(): Promise<void> {
         case "balance":
         case "bal": {
           const mention = message.mentions.users.first();
-          await handleBalance(
-            message,
-            mention?.id,
-            mention?.username,
-          );
+          await handleBalance(message, mention?.id, mention?.username);
           break;
         }
         case "daily":
@@ -237,9 +247,14 @@ export async function startBot(): Promise<void> {
 
     const i = interaction as ChatInputCommandInteraction;
 
-    // Admin commands bypass channel restriction
-    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed", "update-embed-updated"]);
-    if (!adminSlashCommands.has(i.commandName)) {
+    const bypassChannelCheck = new Set([
+      "gamesetup", "giverunos",
+      "update-embed-added", "update-embed-removed", "update-embed-updated",
+      "play", "skip", "stop", "pause", "resume", "queue",
+      "nowplaying", "volume", "leave", "musicguide",
+    ]);
+
+    if (!bypassChannelCheck.has(i.commandName)) {
       const allowed = await isAllowedChannel(i.guildId, i.channelId);
       if (!allowed) {
         await i.reply({ embeds: [errorEmbed("Bot commands are restricted to a specific channel in this server.")], ephemeral: true });
@@ -346,6 +361,37 @@ export async function startBot(): Promise<void> {
           break;
         case "gamesetup":
           await handleGameSetup(i);
+          break;
+        // ── Music ──────────────────────────────────────────────────────────────
+        case "play":
+          await handlePlay(i, i.options.getString("query", true));
+          break;
+        case "skip":
+          await handleSkip(i);
+          break;
+        case "stop":
+          await handleStop(i);
+          break;
+        case "pause":
+          await handlePause(i);
+          break;
+        case "resume":
+          await handleResume(i);
+          break;
+        case "queue":
+          await handleQueue(i);
+          break;
+        case "nowplaying":
+          await handleNowPlaying(i);
+          break;
+        case "volume":
+          await handleVolume(i, i.options.getInteger("level", true));
+          break;
+        case "leave":
+          await handleLeave(i);
+          break;
+        case "musicguide":
+          await handleMusicGuide(i);
           break;
         default:
           break;
