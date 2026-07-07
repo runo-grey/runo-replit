@@ -1,6 +1,5 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 
-
 const commands = [
   new SlashCommandBuilder()
     .setName("balance")
@@ -199,6 +198,55 @@ const commands = [
           opt.setName("channel").setDescription("The game channel").setRequired(true),
         ),
     ),
+
+  // ── Music ────────────────────────────────────────────────────────────────────
+
+  new SlashCommandBuilder()
+    .setName("play")
+    .setDescription("🎵 Search YouTube and play a song (or add to queue)")
+    .addStringOption(opt =>
+      opt.setName("query").setDescription("Song name or YouTube URL").setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("skip")
+    .setDescription("🎵 Skip the current song"),
+
+  new SlashCommandBuilder()
+    .setName("stop")
+    .setDescription("🎵 Stop music and clear the queue"),
+
+  new SlashCommandBuilder()
+    .setName("pause")
+    .setDescription("🎵 Pause the current song"),
+
+  new SlashCommandBuilder()
+    .setName("resume")
+    .setDescription("🎵 Resume paused playback"),
+
+  new SlashCommandBuilder()
+    .setName("queue")
+    .setDescription("🎵 View the current song queue"),
+
+  new SlashCommandBuilder()
+    .setName("nowplaying")
+    .setDescription("🎵 See what's currently playing"),
+
+  new SlashCommandBuilder()
+    .setName("volume")
+    .setDescription("🎵 Set the player volume")
+    .addIntegerOption(opt =>
+      opt.setName("level").setDescription("Volume level (1–100)").setRequired(true).setMinValue(1).setMaxValue(100),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("leave")
+    .setDescription("🎵 Disconnect the bot from voice channel"),
+
+  new SlashCommandBuilder()
+    .setName("musicguide")
+    .setDescription("🎵 Show the music player guide"),
+
 ].map(cmd => cmd.toJSON());
 
 export async function registerSlashCommands(): Promise<void> {
