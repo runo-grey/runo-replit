@@ -1,15 +1,11 @@
 import app from "./app.js";
 import { startBot } from "./bot/index.js";
 
-const port = process.env["PORT"] ? Number(process.env["PORT"]) : null;
+const port = Number(process.env["PORT"] ?? 10000);
 
-if (port) {
-  app.listen(port, () => {
-    console.log(`[server] Listening on port ${port}`);
-  });
-} else {
-  console.log("[server] No PORT set — running as bot-only process (Wispbyte mode)");
-}
+app.listen(port, () => {
+  console.log(`[server] Listening on port ${port}`);
+});
 
 startBot().catch((err) => {
   console.error("[bot] Startup error:", err);
