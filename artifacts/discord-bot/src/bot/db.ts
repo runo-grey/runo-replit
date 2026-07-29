@@ -120,6 +120,21 @@ export async function setAuditLogChannel(guildId: string, channelId: string): Pr
   }
 }
 
+export async function setRankChannel(guildId: string, channelId: string): Promise<void> {
+  const existing = await db.select().from(guildSettingsTable).where(eq(guildSettingsTable.guildId, guildId)).limit(1);
+  if (existing.length > 0) {
+    await db.update(guildSettingsTable).set({ rankChannelId: channelId }).where(eq(guildSettingsTable.guildId, guildId));
+  } else {
+    await db.insert(guildSettingsTable).values({ guildId, rankChannelId: channelId });
+  }
+}
+
+export async function getRankChannelId(guildId: string): Promise<string | null> {
+  const result = await db.select({ rankChannelId: guildSettingsTable.rankChannelId })
+    .from(guildSettingsTable).where(eq(guildSettingsTable.guildId, guildId)).limit(1);
+  return result[0]?.rankChannelId ?? null;
+}
+
 // ─── AutoMod Warnings ─────────────────────────────────────────────────────────
 
 export async function addAutomodWarning(guildId: string, discordId: string, username: string): Promise<number> {

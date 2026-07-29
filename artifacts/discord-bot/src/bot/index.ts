@@ -44,10 +44,11 @@ import { handleSetAutomod } from "./commands/setautomod.js";
 import { handleWhitelist } from "./commands/whitelist.js";
 import { handleSetAuditLogs } from "./commands/setauditlogs.js";
 import { handleRank } from "./commands/rank.js";
+import { handleSetRankChannel } from "./commands/setrankchannel.js";
 import { handleAutomodExecution } from "./automod.js";
 import { handleMessageDelete, handleMessageUpdate } from "./messagelog.js";
 import { errorEmbed } from "./embeds.js";
-import { addXp, getLevelData } from "./db.js";
+import { addXp, getLevelData, getRankChannelId } from "./db.js";
 import { isOnXpCooldown, setXpCooldown, randomXp, calcLevel } from "./xp.js";
 import { getRoleRewardForLevel } from "./levelRewards.js";
 
@@ -296,6 +297,11 @@ export async function startBot(): Promise<void> {
           await handleWithdraw(message, args[0] ?? "");
           break;
         case "rank": {
+          const rankChannelId = message.guildId ? await getRankChannelId(message.guildId) : null;
+          if (rankChannelId && message.channelId !== rankChannelId) {
+            await message.reply({ embeds: [errorEmbed(`Rank commands can only be used in <#${rankChannelId}>.`)] });
+            break;
+          }
           const mention = message.mentions.users.first();
           await handleRank(
             message,
@@ -306,6 +312,9 @@ export async function startBot(): Promise<void> {
           );
           break;
         }
+        case "set-rank-channel":
+          await handleSetRankChannel(message);
+          break;
         case "help":
           await handleHelp(message);
           break;
@@ -441,6 +450,11 @@ export async function startBot(): Promise<void> {
           await handleGameSetup(i);
           break;
         case "rank": {
+          const rankChannelId = i.guildId ? await getRankChannelId(i.guildId) : null;
+          if (rankChannelId && i.channelId !== rankChannelId) {
+            await i.reply({ embeds: [errorEmbed(`Rank commands can only be used in <#${rankChannelId}>.`)], ephemeral: true });
+            break;
+          }
           const user = i.options.getUser("user");
           await handleRank(
             i,
@@ -451,6 +465,9 @@ export async function startBot(): Promise<void> {
           );
           break;
         }
+        case "set-rank-channel":
+          await handleSetRankChannel(i);
+          break;
         default:
           break;
       }

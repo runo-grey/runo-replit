@@ -166,6 +166,13 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
+    .setName("set-rank-channel")
+    .setDescription("Admin: restrict !rank and /rank to a specific channel")
+    .addChannelOption(opt =>
+      opt.setName("channel").setDescription("Channel where rank commands are allowed").setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
     .setName("giverunos")
     .setDescription("Admin: give Runos to a user (restricted role only)")
     .addUserOption(opt =>

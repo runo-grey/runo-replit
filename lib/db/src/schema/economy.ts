@@ -36,6 +36,7 @@ export const guildSettingsTable = pgTable("guild_settings", {
   gameChannelId: text("game_channel_id"),
   automodLogChannelId: text("automod_log_channel_id"),
   auditLogChannelId: text("audit_log_channel_id"),
+  rankChannelId: text("rank_channel_id"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
