@@ -49,6 +49,7 @@ import { handleMessageDelete, handleMessageUpdate } from "./messagelog.js";
 import { errorEmbed } from "./embeds.js";
 import { addXp, getLevelData } from "./db.js";
 import { isOnXpCooldown, setXpCooldown, randomXp, calcLevel } from "./xp.js";
+import { getRoleRewardForLevel } from "./levelRewards.js";
 
 const PREFIX = "!";
 
@@ -122,14 +123,34 @@ export async function startBot(): Promise<void> {
       try {
         const { oldLevel, newLevel } = await addXp(discordId, guildId, username, xpGain, calcLevel);
         if (newLevel > oldLevel) {
+          // Check every newly passed level for a role reward
+          for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
+            const rewardRoleId = getRoleRewardForLevel(lvl);
+            if (rewardRoleId && message.guild) {
+              try {
+                const member = await message.guild.members.fetch(discordId);
+                if (!member.roles.cache.has(rewardRoleId)) {
+                  await member.roles.add(rewardRoleId);
+                }
+              } catch (roleErr) {
+                logger.error({ err: roleErr }, `Failed to assign level ${lvl} role reward`);
+              }
+            }
+          }
+
           // Level-up notification
+          const rewardRoleId = getRoleRewardForLevel(newLevel);
+          const rewardLine = rewardRoleId
+            ? `\n🎖️ You've been given a new role: <@&${rewardRoleId}>`
+            : "";
+
           await message.channel.send({
             embeds: [
               new EmbedBuilder()
                 .setColor(0xffd700)
                 .setTitle("🎉 Level Up!")
                 .setDescription(
-                  `Congrats <@${discordId}>! You've reached **Level ${newLevel}**! 🏅\nKeep chatting to climb higher.`,
+                  `Congrats <@${discordId}>! You've reached **Level ${newLevel}**! 🏅${rewardLine}\nKeep chatting to climb higher.`,
                 )
                 .setThumbnail(message.author.displayAvatarURL({ extension: "png" }))
                 .setTimestamp(),
