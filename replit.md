@@ -1,45 +1,61 @@
-# [Project name]
+# Runo Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A Discord economy + UNO bot with Runos currency, gambling games, a shop, XP leveling, and multiplayer UNO.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter runo-bot run dev` — run the Discord bot (port 10000)
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm install` — install all workspace packages
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- pnpm workspaces, Node.js 20+, TypeScript 5.x
+- Discord: discord.js v14
+- DB: PostgreSQL + Drizzle ORM (`lib/db`)
+- Rank cards: `@napi-rs/canvas`
+- HTTP keep-alive: Express 5 (`/healthz` endpoint for UptimeRobot)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Bot source: `artifacts/discord-bot/src/bot/`
+- Commands: `artifacts/discord-bot/src/bot/commands/`
+- XP logic: `artifacts/discord-bot/src/bot/xp.ts`
+- DB functions: `artifacts/discord-bot/src/bot/db.ts`
+- Shared DB schema: `lib/db/src/schema/economy.ts`
+- Logger: `artifacts/discord-bot/src/lib/logger.ts`
+
+## Environment variables needed
+
+| Key | Description |
+|---|---|
+| `DISCORD_BOT_TOKEN` | Bot token from Discord Developer Portal |
+| `DISCORD_CLIENT_ID` | Application / client ID |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `PORT` | HTTP port (default 10000) |
+| `AUTOMOD_WEBHOOK_URL` | Optional — webhook for automod logs |
+| `AUDIT_LOGS_WEBHOOK_URL` | Optional — webhook for audit logs |
+
+## DB Tables
+
+- `economy_users` — wallets, bank, cooldowns
+- `economy_inventory` — item ownership
+- `guild_settings` — per-guild config (game channel, log channels)
+- `automod_warnings` — warning counts per user per guild
+- `levels` — XP, level, last XP gain per user per guild
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Bot reads `DISCORD_BOT_TOKEN` (falls back to `DISCORD_TOKEN`) so Render deployments can use either name.
+- XP cooldowns are stored in-memory (Map) — resets on restart, intentional to keep DB load low.
+- Level formula: `5n² + 50n + 100` XP needed per level (MEE6 compatible).
+- Rank card is generated with `@napi-rs/canvas` (pre-built Linux x64 binary, no libcairo needed).
+- `@workspace/db` is the single source of truth for all table definitions; the bot's old local `src/schema/` is no longer used.
 
-## Product
+## Deploy on Render
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+See `artifacts/discord-bot/render.yaml` — connect repo, add env vars, deploy.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+_Populate as you build._
