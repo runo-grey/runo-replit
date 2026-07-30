@@ -46,6 +46,7 @@ import { handleSetAuditLogs } from "./commands/setauditlogs.js";
 import { handleRank } from "./commands/rank.js";
 import { handleSetRankChannel } from "./commands/setrankchannel.js";
 import { handleXpLeaderboard, handleXpLeaderboardButton, XP_LB_CHANNEL } from "./commands/leaderboard-xp.js";
+import { handleCheckup } from "./commands/checkup.js";
 import { handleAutomodExecution } from "./automod.js";
 import { handleMessageDelete, handleMessageUpdate } from "./messagelog.js";
 import { errorEmbed } from "./embeds.js";
@@ -324,6 +325,9 @@ export async function startBot(): Promise<void> {
         case "set-rank-channel":
           await handleSetRankChannel(message);
           break;
+        case "checkup":
+          await handleCheckup(message);
+          break;
         case "help":
           await handleHelp(message);
           break;
@@ -486,6 +490,9 @@ export async function startBot(): Promise<void> {
         }
         case "set-rank-channel":
           await handleSetRankChannel(i);
+          break;
+        case "checkup":
+          await handleCheckup(i);
           break;
         default:
           break;
