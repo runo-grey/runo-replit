@@ -45,6 +45,7 @@ import { handleWhitelist } from "./commands/whitelist.js";
 import { handleSetAuditLogs } from "./commands/setauditlogs.js";
 import { handleRank } from "./commands/rank.js";
 import { handleSetRankChannel } from "./commands/setrankchannel.js";
+import { handleXpLeaderboard, handleXpLeaderboardButton, XP_LB_CHANNEL } from "./commands/leaderboard-xp.js";
 import { handleAutomodExecution } from "./automod.js";
 import { handleMessageDelete, handleMessageUpdate } from "./messagelog.js";
 import { errorEmbed } from "./embeds.js";
@@ -173,8 +174,12 @@ export async function startBot(): Promise<void> {
     // Admin commands bypass channel restriction
     const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs"]);
 
-    // Check channel restriction (skip for DMs and admin commands)
-    if (message.channel.type === ChannelType.GuildText && !adminCommands.has(command)) {
+    // Check channel restriction (skip for DMs, admin commands, and the XP leaderboard channel)
+    if (
+      message.channel.type === ChannelType.GuildText &&
+      !adminCommands.has(command) &&
+      message.channelId !== XP_LB_CHANNEL
+    ) {
       const allowed = await isAllowedChannel(message.guildId, message.channelId);
       if (!allowed) {
         await message.reply({ embeds: [errorEmbed("Bot commands are restricted to a specific channel in this server.")] });
@@ -210,7 +215,11 @@ export async function startBot(): Promise<void> {
           break;
         case "leaderboard":
         case "lb":
-          await handleLeaderboard(message);
+          if (message.channelId === XP_LB_CHANNEL) {
+            await handleXpLeaderboard(message, 0);
+          } else {
+            await handleLeaderboard(message);
+          }
           break;
         case "shop":
           await handleShop(message);
@@ -324,6 +333,16 @@ export async function startBot(): Promise<void> {
     } catch (err) {
       logger.error({ err, command }, "Error handling prefix command");
       await message.reply({ embeds: [errorEmbed("Something went wrong. Please try again.")] }).catch(() => null);
+    }
+  });
+
+  // --- BUTTON INTERACTIONS ---
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (!interaction.isButton()) return;
+    if (interaction.customId.startsWith("lb_xp_p_")) {
+      await handleXpLeaderboardButton(interaction).catch((err) => {
+        logger.error({ err }, "XP leaderboard button handler error");
+      });
     }
   });
 

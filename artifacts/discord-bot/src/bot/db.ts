@@ -205,6 +205,34 @@ export async function addXp(
 }
 
 /**
+ * Get paginated XP leaderboard for a guild, ordered by total XP descending.
+ */
+export async function getXpLeaderboard(
+  guildId: string,
+  limit: number,
+  offset: number,
+): Promise<{ discordId: string; username: string; xp: number }[]> {
+  return db
+    .select({ discordId: levelsTable.discordId, username: levelsTable.username, xp: levelsTable.xp })
+    .from(levelsTable)
+    .where(eq(levelsTable.guildId, guildId))
+    .orderBy(desc(levelsTable.xp))
+    .limit(limit)
+    .offset(offset);
+}
+
+/**
+ * Count total members with XP entries in a guild.
+ */
+export async function getXpLeaderboardTotal(guildId: string): Promise<number> {
+  const result = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(levelsTable)
+    .where(eq(levelsTable.guildId, guildId));
+  return result[0]?.count ?? 0;
+}
+
+/**
  * Get the rank (1-based position by XP) of a user in a guild.
  */
 export async function getRankPosition(discordId: string, guildId: string): Promise<number> {
