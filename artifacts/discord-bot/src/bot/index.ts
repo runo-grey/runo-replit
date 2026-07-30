@@ -173,7 +173,7 @@ export async function startBot(): Promise<void> {
     if (!command) return;
 
     // Admin commands bypass channel restriction
-    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs"]);
+    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel", "checkup"]);
 
     // Check channel restriction (skip for DMs, admin commands, and the XP leaderboard channel)
     if (
@@ -357,7 +357,7 @@ export async function startBot(): Promise<void> {
     const i = interaction as ChatInputCommandInteraction;
 
     // Admin commands bypass channel restriction
-    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs"]);
+    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel", "checkup"]);
     if (!adminSlashCommands.has(i.commandName)) {
       const allowed = await isAllowedChannel(i.guildId, i.channelId);
       if (!allowed) {
