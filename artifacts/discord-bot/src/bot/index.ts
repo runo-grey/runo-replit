@@ -46,7 +46,6 @@ import { handleSetAuditLogs } from "./commands/setauditlogs.js";
 import { handleRank } from "./commands/rank.js";
 import { handleSetRankChannel } from "./commands/setrankchannel.js";
 import { handleXpLeaderboard, handleXpLeaderboardButton, XP_LB_CHANNEL } from "./commands/leaderboard-xp.js";
-import { handleCheckup } from "./commands/checkup.js";
 import { handleAutomodExecution } from "./automod.js";
 import { handleMessageDelete, handleMessageUpdate } from "./messagelog.js";
 import { errorEmbed } from "./embeds.js";
@@ -173,7 +172,7 @@ export async function startBot(): Promise<void> {
     if (!command) return;
 
     // Admin commands bypass channel restriction
-    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel", "checkup"]);
+    const adminCommands = new Set(["giverunos", "gamesetup", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel"]);
 
     // Check channel restriction (skip for DMs, admin commands, and the XP leaderboard channel)
     if (
@@ -325,9 +324,6 @@ export async function startBot(): Promise<void> {
         case "set-rank-channel":
           await handleSetRankChannel(message);
           break;
-        case "checkup":
-          await handleCheckup(message);
-          break;
         case "help":
           await handleHelp(message);
           break;
@@ -357,7 +353,7 @@ export async function startBot(): Promise<void> {
     const i = interaction as ChatInputCommandInteraction;
 
     // Admin commands bypass channel restriction
-    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel", "checkup"]);
+    const adminSlashCommands = new Set(["gamesetup", "giverunos", "update-embed-added", "update-embed-removed", "set-automod", "whitelist", "set-audit-logs", "set-rank-channel"]);
     if (!adminSlashCommands.has(i.commandName)) {
       const allowed = await isAllowedChannel(i.guildId, i.channelId);
       if (!allowed) {
@@ -490,9 +486,6 @@ export async function startBot(): Promise<void> {
         }
         case "set-rank-channel":
           await handleSetRankChannel(i);
-          break;
-        case "checkup":
-          await handleCheckup(i);
           break;
         default:
           break;

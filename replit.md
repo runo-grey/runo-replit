@@ -1,6 +1,6 @@
-# [Project name]
+# Runo Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A Discord economy + UNO bot with XP levelling, gambling mini-games, automod, and audit logging.
 
 ## Run & Operate
 
@@ -22,23 +22,35 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/discord-bot/src/bot/` — all bot logic (commands, XP, automod, etc.)
+- `artifacts/discord-bot/src/bot/commands/` — one file per command handler
+- `lib/db/src/schema/economy.ts` — all DB table definitions (source of truth)
+- GitHub source: https://github.com/runo-grey/runo-replit
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Bot uses both prefix commands (`!`) and slash commands (35 registered)
+- Economy tables: `economy_users`, `economy_inventory`, `guild_settings`, `automod_warnings`, `levels`
+- XP gain is in-memory with cooldown; all economy data persisted in Postgres via Drizzle ORM
+- Bot + Express health server run together in `artifacts/discord-bot` (port 10000)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Economy: balance, bank, daily, work, give, rob, leaderboard
+- Gambling: slots, coinflip, blackjack, roulette, dice, scratch
+- Games: UNO (multi-player in-channel)
+- XP & Levels: per-guild XP with cooldown, level-up announcements, role rewards
+- Admin: automod logging, audit logs, game channel restriction, rank channel setup
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- GitHub repo: https://github.com/runo-grey/runo-replit (public)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Run `pnpm --filter @workspace/db run push` after any schema change in `lib/db/src/schema/economy.ts`
+- Bot token env var is `DISCORD_BOT_TOKEN`; the code also accepts `DISCORD_TOKEN` as fallback
+- Restart the "Discord Bot" workflow after code changes
 
 ## Pointers
 

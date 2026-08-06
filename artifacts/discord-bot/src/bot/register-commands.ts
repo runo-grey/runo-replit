@@ -173,10 +173,6 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
-    .setName("checkup")
-    .setDescription("Admin: scan bot source code, auto-fix indentation, and send a health report"),
-
-  new SlashCommandBuilder()
     .setName("giverunos")
     .setDescription("Admin: give Runos to a user (restricted role only)")
     .addUserOption(opt =>
