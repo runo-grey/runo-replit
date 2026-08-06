@@ -52,6 +52,16 @@ import { errorEmbed } from "./embeds.js";
 import { addXp, getLevelData, getRankChannelId } from "./db.js";
 import { isOnXpCooldown, setXpCooldown, randomXp, calcLevel } from "./xp.js";
 import { getRoleRewardForLevel } from "./levelRewards.js";
+import { handleTicketPanel } from "./commands/ticket-panel.js";
+import { handleSetTicketRole } from "./commands/set-ticket-role.js";
+import { handleTicketHelp } from "./commands/ticket-help.js";
+import {
+  handleTicketSelect,
+  handleTicketClaim,
+  handleTicketClose,
+  handleTicketCloseReason,
+  handleTicketCloseReasonModal,
+} from "./ticket.js";
 
 const PREFIX = "!";
 
@@ -336,12 +346,47 @@ export async function startBot(): Promise<void> {
     }
   });
 
+  // --- SELECT MENU INTERACTIONS ---
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (!interaction.isStringSelectMenu()) return;
+    if (interaction.customId === "ticket_select") {
+      await handleTicketSelect(interaction).catch((err) => {
+        logger.error({ err }, "Ticket select handler error");
+      });
+    }
+  });
+
+  // --- MODAL INTERACTIONS ---
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (!interaction.isModalSubmit()) return;
+    if (interaction.customId === "ticket_close_reason_modal") {
+      await handleTicketCloseReasonModal(interaction).catch((err) => {
+        logger.error({ err }, "Ticket close reason modal error");
+      });
+    }
+  });
+
   // --- BUTTON INTERACTIONS ---
   client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isButton()) return;
     if (interaction.customId.startsWith("lb_xp_p_")) {
       await handleXpLeaderboardButton(interaction).catch((err) => {
         logger.error({ err }, "XP leaderboard button handler error");
+      });
+    }
+    if (interaction.customId === "ticket_claim") {
+      await handleTicketClaim(interaction).catch((err) => {
+        logger.error({ err }, "Ticket claim handler error");
+      });
+    }
+    if (interaction.customId === "ticket_close") {
+      await handleTicketClose(interaction).catch((err) => {
+        logger.error({ err }, "Ticket close handler error");
+      });
+    }
+    if (interaction.customId === "ticket_close_reason") {
+      await handleTicketCloseReason(interaction).catch((err) => {
+        logger.error({ err }, "Ticket close reason handler error");
       });
     }
   });
@@ -486,6 +531,15 @@ export async function startBot(): Promise<void> {
         }
         case "set-rank-channel":
           await handleSetRankChannel(i);
+          break;
+        case "ticket-panel":
+          await handleTicketPanel(i);
+          break;
+        case "set-ticket-role":
+          await handleSetTicketRole(i);
+          break;
+        case "ticket-help":
+          await handleTicketHelp(i);
           break;
         default:
           break;

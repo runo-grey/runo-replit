@@ -227,6 +227,31 @@ const commands = [
           opt.setName("channel").setDescription("The game channel").setRequired(true),
         ),
     ),
+
+  new SlashCommandBuilder()
+    .setName("ticket-panel")
+    .setDescription("Admin: post the RUNCANDELS ticket panel in this channel"),
+
+  new SlashCommandBuilder()
+    .setName("set-ticket-role")
+    .setDescription("Admin: set the staff role for a ticket category")
+    .addStringOption(opt =>
+      opt.setName("type").setDescription("Ticket category").setRequired(true)
+        .addChoices(
+          { name: "General Support",  value: "general-support"  },
+          { name: "Bug Report",       value: "bug-report"       },
+          { name: "Store Support",    value: "store-support"    },
+          { name: "Ban Appeal",       value: "ban-appeal"       },
+          { name: "Player Report",    value: "player-report"    },
+        ),
+    )
+    .addRoleOption(opt =>
+      opt.setName("role").setDescription("Staff role that will handle this ticket type").setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("ticket-help")
+    .setDescription("Show the RUNCANDELS ticket system guide (staff only)"),
 ].map(cmd => cmd.toJSON());
 
 export async function registerSlashCommands(): Promise<void> {
