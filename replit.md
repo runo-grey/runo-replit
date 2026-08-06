@@ -4,21 +4,17 @@ A Discord economy + UNO bot with XP levelling, gambling mini-games, automod, and
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter runo-bot run dev` — run the Discord bot (port 10000)
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm install` — install all workspace packages
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- pnpm workspaces, Node.js 20+, TypeScript 5.x
+- Discord: discord.js v14
+- DB: PostgreSQL + Drizzle ORM (`lib/db`)
+- Rank cards: `@napi-rs/canvas`
+- HTTP keep-alive: Express 5 (`/healthz` endpoint for UptimeRobot)
 
 ## Where things live
 
@@ -34,7 +30,7 @@ A Discord economy + UNO bot with XP levelling, gambling mini-games, automod, and
 - XP gain is in-memory with cooldown; all economy data persisted in Postgres via Drizzle ORM
 - Bot + Express health server run together in `artifacts/discord-bot` (port 10000)
 
-## Product
+## Deploy on Render
 
 - Economy: balance, bank, daily, work, give, rob, leaderboard
 - Gambling: slots, coinflip, blackjack, roulette, dice, scratch
